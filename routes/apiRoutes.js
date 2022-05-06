@@ -1,23 +1,13 @@
 const router = require('express').Router();
-const { response } = require('express');
 const fs = require('fs');
-const ShortUniqueId = require('short-unique-id');
+//import unique id from npm
+const uniqid = require('uniqid');
 const savedNotes = require('../db/db.json');
 
 
-function newNotes(notes) {
-    notes = JSON.stringify(notes);
-    console.log(notes);
-
-    fs.writeFileSync('./db/db.json', notes, (err) => {
-        if (err) {
-            return console.log(err);
-        }
-    });
-}
-
 //Get all saved notes
 router.get('/notes', (req, res) => {
+    savedNotes = JSON.parse(fs.readFileSync('../db/db.json', 'utf8'));
     res.json(savedNotes);
 });
 
@@ -25,16 +15,16 @@ router.get('/notes', (req, res) => {
 router.post('/notes', (req, res) => {
     const addNote = req.body;
     
-    addNote.id = new ShortUniqueId();
+    addNote.id = uniqid();
 
-    let noteObj = JSON.parse(fs.readFileSync('./db/db.json', 'utf8'));
+    savedNotes = JSON.parse(fs.readFileSync('../db/db.json', 'utf8'));
     //push note in 'db.json'
-    noteObj.push(addNote);
+    savedNotes.push(addNote);
 
-    fs.writeFileSync('./db/db.json', JSON.stringify(noteObj));
+    fs.writeFileSync('../db/db.json', JSON.stringify(savedNotes));
 
-    res.json(noteObj);
-    newNotes(savedNotes);
+    res.json(savedNotes);
+   
 });
 
 module.exports = router;
